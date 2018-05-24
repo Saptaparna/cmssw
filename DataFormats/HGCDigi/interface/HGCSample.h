@@ -32,11 +32,14 @@ public:
   void setToA(uint16_t toa)             { setWord(toa,  kToAMask,    kToAShift);    }
   void setToAValid(bool toaFired)       { toaFired_ = toaFired;  }
   void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
-  void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
+  void setToAUnsmeared(uint16_t toaUnsmeared)             { setWord(toaUnsmeared,  kToAMask,    kToAShift);    }
+  void setTotalCharge(uint16_t totalCharge)             { setWord(totalCharge,  kToAMask,    kToAShift);    }
+  void set(bool thr, bool mode,uint16_t toa, uint16_t data, uint16_t toaUnsmeared, uint16_t totalCharge) 
   { 
     toa = ( toa > kToAMask ? kToAMask : toa );
     data = ( data > kDataMask ? kDataMask : data);
-
+    toaUnsmeared = ( toaUnsmeared > kToAMask ? kToAMask : toaUnsmeared );
+    totalCharge = ( totalCharge > kDataMask ? kDataMask : totalCharge);
     value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
                ( (uint32_t)mode & kModeMask   ) << kModeShift   |
                ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
@@ -59,7 +62,9 @@ public:
   bool mode() const          { return ( (value_ >> kModeShift)   & kModeMask   );  }
   bool getToAValid() const   { return toaFired_;                }
   uint32_t toa()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
+  uint32_t toaUnsmeared()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
   uint32_t data()  const     { return ( (value_ >> kDataShift)   & kDataMask   ); }
+  uint32_t totalCharge() const     { return ( (value_ >> kDataShift)   & kDataMask   ); }
   uint32_t operator()()      { return value_;                   }
   
 private:

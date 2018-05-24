@@ -5,12 +5,21 @@
 #include <cassert>
 #include <math.h>
 
-HGCRecHit::HGCRecHit() : CaloRecHit(), flagBits_(0) {
+HGCRecHit::HGCRecHit() : CaloRecHit(), flagBits_(0), unsmearedTime_(0.0), totalCharge_(0.0) {
 }
 
-HGCRecHit::HGCRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits) :
-  CaloRecHit(id,energy,time,flags), flagBits_(flagBits) {
+HGCRecHit::HGCRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits, float unsmearedTime, float totalCharge) :
+//HGCRecHit::HGCRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits) :
+  CaloRecHit(id,energy,time,flags), flagBits_(flagBits), unsmearedTime_(unsmearedTime), totalCharge_(totalCharge) {
 }
+
+float HGCRecHit::totalCharge() const { return totalCharge_; }
+
+void HGCRecHit::settotalCharge(float totalCharge) { totalCharge_=totalCharge; }
+
+float HGCRecHit::unsmearedTime() const { return unsmearedTime_; }
+
+void HGCRecHit::setunsmearedTime(float unsmearedTime) { unsmearedTime_=unsmearedTime; }
 
 float HGCRecHit::chi2() const {
   uint32_t rawChi2 = 0x7F & (flags()>>4);

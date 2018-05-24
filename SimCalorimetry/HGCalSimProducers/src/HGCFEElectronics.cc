@@ -111,7 +111,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
       //brute force saturation, maybe could to better with an exponential like saturation      
       const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_fC_) / adcLSB_fC_ );
       HGCSample newSample;
-      newSample.set(chargeColl[it]>adj_thresh,false,0,adc);
+      newSample.set(chargeColl[it]>adj_thresh,false,0,adc,0,0);
       dataFrame.setSample(it,newSample);
 
       if(debug) edm::LogVerbatim("HGCFE") << adc << " (" << chargeColl[it] << "/" << adcLSB_fC_ << ") ";
@@ -163,7 +163,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
       //brute force saturation, maybe could to better with an exponential like saturation
       const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
       HGCSample newSample;
-      newSample.set(newCharge[it]>adj_thresh,false,0,std::floor(saturatedCharge/adcLSB_fC_));
+      newSample.set(newCharge[it]>adj_thresh,false,0,std::floor(saturatedCharge/adcLSB_fC_),0,0);
       dataFrame.setSample(it,newSample);      
 
       if(debug) edm::LogVerbatim("HGCFE") << std::floor(saturatedCharge/adcLSB_fC_) << " (" << saturatedCharge << "/" << adcLSB_fC_ <<" ) " ;
@@ -391,12 +391,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
 	      //working version for in-time PU and signal 
-	      newSample.set(true,true,(uint16_t)(timeToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      newSample.set(true,true,(uint16_t)(timeToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)),0,0);
 	      if(toaFlags[it]) newSample.setToAValid(true);
 	    }
 	  else
 	    {
-	      newSample.set(false,true,0,0);
+	      newSample.set(false,true,0,0,0,0);
 	    }
 	}
       else
@@ -404,7 +404,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
 	  //working version for in-time PU and signal 
-	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeToA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeToA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)),0,0);
 	  if(toaFlags[it]) newSample.setToAValid(true);
 	}
       dataFrame.setSample(it,newSample);

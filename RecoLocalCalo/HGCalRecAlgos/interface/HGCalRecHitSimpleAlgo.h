@@ -64,11 +64,12 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     //    float clockToNsConstant = 25;    
     float energy = uncalibRH.amplitude() * weights_[layer] * 0.001f;
     float time   = uncalibRH.jitter();
-
+    float timeUnsmeared = uncalibRH.jitter();
+    
     //if(time<0) time   = 0; // fast-track digi conversion
-    
-    HGCRecHit rh( uncalibRH.id(), energy, time );
-    
+    if(time > -1) std::cout << "time = " << time << " time Unsmeared = " << timeUnsmeared << std::endl; 
+    //HGCRecHit rh( uncalibRH.id(), energy, time );
+    HGCRecHit rh( uncalibRH.id(), energy, time, 0, 0, timeUnsmeared, energy);
     // Now fill flags
     // all rechits from the digitizer are "good" at present
     rh.setFlag(HGCRecHit::kGood);
