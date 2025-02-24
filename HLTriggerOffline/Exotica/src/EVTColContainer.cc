@@ -41,27 +41,31 @@
 /// Container with all the objects needed
 /// Notice that I have "more or less" followed
 /// the pdgIds of the particles involved.
+
 struct EVTColContainer {
     enum {
+        PHOTON  = 22,
         ELEC    = 11,
         MUON    = 13,
-        MUTRK   = 130000, //RY
-        TRACK   = 0,      //RY
+        MUTRK   = 130,
         PFTAU   = 15,
-        PHOTON  = 22,
+        TRACK   = 0,  
         PFMET   = 39,
-        MET     = 390000, //RY
-        GENMET  = 390001, //RY
-        CALOMET = 390002, //RY
-        HLTMET  = 390003, //RY
-        L1MET   = 390004, //RY
+	PFMHT   = 40,
+        MET     = 390000,
+        GENMET  = 390001,
+        CALOMET = 390002,
+        HLTMET  = 390003,
+        L1MET   = 390004,
         PFJET   = 211,
-        CALOJET = 111, //ND
+        CALOJET = 111, 
+	CALOMHT = 400002,
         _nMAX
     };
 
     int nOfCollections;
     int nInitialized;
+
     const reco::GenParticleCollection            * genParticles;
     const std::vector<reco::Muon>                * muons;
     const std::vector<reco::Track>               * tracks;
@@ -69,13 +73,17 @@ struct EVTColContainer {
     const std::vector<reco::Photon>              * photons;
     const std::vector<reco::MET>                 * METs;
     const std::vector<reco::PFMET>               * pfMETs;
+    const std::vector<reco::PFMET>               * pfMHTs;
     const std::vector<reco::GenMET>              * genMETs;
     const std::vector<reco::CaloMET>             * caloMETs;
+    const std::vector<reco::CaloMET>             * caloMHTs;
     const std::vector<l1extra::L1EtMissParticle> * l1METs;
     const std::vector<reco::PFTau>               * pfTaus;
     const std::vector<reco::PFJet>               * pfJets;
     const std::vector<reco::CaloJet>             * caloJets;
     const edm::TriggerResults                    * triggerResults ;
+    const reco::BeamSpot                         * bs;
+
     EVTColContainer():
         nOfCollections(6),
         nInitialized(0),
@@ -86,13 +94,16 @@ struct EVTColContainer {
         photons(0),
         METs(0),
         pfMETs(0),
+        pfMHTs(0),
         genMETs(0),
         caloMETs(0),
+        caloMHTs(0),
         l1METs(0),
         pfTaus(0),
         pfJets(0),
         caloJets(0),
-        triggerResults(0)
+        triggerResults(0),
+        bs(0)
     {
     }
     ///
@@ -117,13 +128,16 @@ struct EVTColContainer {
         photons = 0;
         METs = 0;
         pfMETs = 0;
+        pfMHTs = 0;
         genMETs = 0;
         caloMETs = 0;
+        caloMHTs = 0;
         l1METs = 0;
         pfTaus = 0;
         pfJets = 0;
         caloJets = 0;
         triggerResults = 0;
+        bs = 0;
     }
 
     /// Setter: multiple overloaded function
@@ -157,6 +171,11 @@ struct EVTColContainer {
         pfMETs = v;
         ++nInitialized;
     }
+    void setPFMHT(const reco::PFMETCollection * v)
+    {
+        pfMHTs = v;
+        ++nInitialized;
+    }
     void set(const reco::GenMETCollection * v)
     {
         genMETs = v;
@@ -165,6 +184,11 @@ struct EVTColContainer {
     void set(const reco::CaloMETCollection * v)
     {
         caloMETs = v;
+        ++nInitialized;
+    }
+    void setCaloMHT(const reco::CaloMETCollection * v)
+    {
+        caloMHTs = v;
         ++nInitialized;
     }
     void set(const l1extra::L1EtMissParticleCollection * v)
@@ -206,10 +230,14 @@ struct EVTColContainer {
             size = METs->size();
         } else if (objtype == EVTColContainer::PFMET && pfMETs != 0) {
             size = pfMETs->size();
+        } else if (objtype == EVTColContainer::PFMHT && pfMHTs != 0) {
+            size = pfMHTs->size();
         } else if (objtype == EVTColContainer::GENMET && genMETs != 0) {
             size = genMETs->size();
         } else if (objtype == EVTColContainer::CALOMET && caloMETs != 0) {
             size = caloMETs->size();
+        } else if (objtype == EVTColContainer::CALOMHT && caloMHTs != 0) {
+            size = caloMHTs->size();
         } else if (objtype == EVTColContainer::L1MET && l1METs != 0) {
             size = l1METs->size();
         } else if (objtype == EVTColContainer::PFTAU && pfTaus != 0) {
@@ -242,10 +270,14 @@ struct EVTColContainer {
             objTypestr = "MET";
         } else if (objtype == EVTColContainer::PFMET) {
             objTypestr = "PFMET";
+        } else if (objtype == EVTColContainer::PFMHT) {
+            objTypestr = "PFMHT";
         } else if (objtype == EVTColContainer::GENMET) {
             objTypestr = "GenMET";
         } else if (objtype == EVTColContainer::CALOMET) {
             objTypestr = "CaloMET";
+        } else if (objtype == EVTColContainer::CALOMHT) {
+            objTypestr = "CaloMHT";
         } else if (objtype == EVTColContainer::L1MET) {
             objTypestr = "l1MET";
         } else if (objtype == EVTColContainer::PFTAU) {

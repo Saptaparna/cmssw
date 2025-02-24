@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Tracking_TrajectorySeedProducer2_h
 #define FastSimulation_Tracking_TrajectorySeedProducer2_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -20,6 +20,8 @@
 
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
+	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <vector>
 #include <sstream>
@@ -30,8 +32,7 @@ class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
 
-class TrajectorySeedProducer: 
-    public edm::EDProducer
+class TrajectorySeedProducer: public edm::stream::EDProducer <>
 {
     private:
         SeedingTree<TrackingLayer> _seedingTree;
@@ -52,7 +53,6 @@ class TrajectorySeedProducer:
         edm::InputTag theBeamSpot;
 
         bool seedCleaning;
-        bool rejectOverlaps;
         unsigned int absMinRecHits;
         unsigned int numberOfHits;
         
@@ -79,14 +79,13 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
+	std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
 
     public:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
-    virtual ~TrajectorySeedProducer()
-    {
-    }
+    virtual ~TrajectorySeedProducer();
 
     virtual void beginRun(edm::Run const& run, const edm::EventSetup & es);
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
@@ -196,6 +195,7 @@ class TrajectorySeedProducer:
             const SeedingNode<TrackingLayer>* node, 
             unsigned int trackerHit
     ) const;
+
 
 };
 

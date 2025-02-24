@@ -8,7 +8,7 @@ process = cms.Process("OccupancyPlotsTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -34,12 +34,50 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","DuplicateHitFinder","BuildingTrackerDetId"))
+process.MessageLogger.destinations.extend(cms.vstring("detids"))
+process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","DuplicateHitFinder","BuildingTrackerDetId",
+                                                    "SubDetectorGeometricDetType","BuildingGeomDetUnits","LookingForFirstStrip",
+                                                    "BuildingSubDetTypeMap","SubDetTypeMapContent","NumberOfLayers","IsThereTest"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
+#process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
+process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
+process.MessageLogger.detids = cms.untracked.PSet(
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+        ),
+    BuildingTrackerDetId = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    GeometricDetBuilding = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    SubDetectorGeometricDetType = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    BuildingGeomDetUnits = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    LookingForFirstStrip = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    BuildingSubDetTypeMap = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    SubDetTypeMapContent = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    NumberOfLayers = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    IsThereTest = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    threshold = cms.untracked.string("DEBUG")
+    )    
 process.MessageLogger.cout.DuplicateHitFinder = cms.untracked.PSet(
     limit = cms.untracked.int32(100000000)
     )
@@ -202,13 +240,16 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+#process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
-
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(

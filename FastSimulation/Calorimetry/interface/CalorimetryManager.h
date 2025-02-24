@@ -34,10 +34,8 @@ class GflashHadronShowerProfile;
 class GflashPiKShowerProfile;
 class GflashProtonShowerProfile;
 class GflashAntiProtonShowerProfile;
-// fastHFshowerLibrary
-class fastHFShowerLibrary;
-
-class DQMStore;
+// FastHFshowerLibrary
+class FastHFShowerLibrary;
 
 namespace edm { 
   class ParameterSet;
@@ -60,8 +58,8 @@ class CalorimetryManager{
     // Return the address of the Calorimeter 
   CaloGeometryHelper * getCalorimeter() const {return myCalorimeter_;}
 
-  // Return the address of the fastHFShowerLibrary 
-  fastHFShowerLibrary * getHFShowerLibrary() const {return theHFShowerLibrary;}
+  // Return the address of the FastHFShowerLibrary 
+  FastHFShowerLibrary * getHFShowerLibrary() const {return theHFShowerLibrary;}
 
   // load container from edm::Event
   void loadFromEcalBarrel(edm::PCaloHitContainer & c) const;
@@ -102,8 +100,6 @@ class CalorimetryManager{
   CaloGeometryHelper* myCalorimeter_;
 
   Histos * myHistos;
-  DQMStore * dbe;
-
 
   HCALResponse* myHDResponse_;
   HSParameters * myHSParameters_;
@@ -114,7 +110,6 @@ class CalorimetryManager{
   std::vector<std::pair<CaloHitID,float> > ESMapping_;
 
   bool debug_;
-  bool useDQM_;
   std::vector<unsigned int> evtsToDebug_;
 
   bool unfoldedMode_;
@@ -189,6 +184,7 @@ class CalorimetryManager{
 
   // HFShowerLibrary
   bool useShowerLibrary;
-  fastHFShowerLibrary *theHFShowerLibrary;
+  bool useCorrectionSL;
+  FastHFShowerLibrary *theHFShowerLibrary;
 };
 #endif

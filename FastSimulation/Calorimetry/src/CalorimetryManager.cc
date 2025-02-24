@@ -40,17 +40,12 @@
 #include "SimGeneral/GFlash/interface/GflashHit.h"
 #include "SimGeneral/GFlash/interface/Gflash3Vector.h"
 
-//fastHFShowerLibrary
-#include "FastSimulation/ShowerDevelopment/interface/fastHFShowerLibrary.h"
+//FastHFShowerLibrary
+#include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 
 // STL headers 
 #include <vector>
 #include <iostream>
-
-//DQM
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //CMSSW headers 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -97,55 +92,28 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
   theProtonProfile = new GflashProtonShowerProfile(parGflash);
   theAntiProtonProfile = new GflashAntiProtonShowerProfile(parGflash);
 
-  // fastHFShowerLibrary
-  theHFShowerLibrary = new fastHFShowerLibrary(fastCalo);
+  // FastHFShowerLibrary
+  theHFShowerLibrary = new FastHFShowerLibrary(fastCalo);
 
   readParameters(fastCalo);
 
   //  myHistos = 0; 
 
-  dbe = edm::Service<DQMStore>().operator->();
-
-  if (useDQM_){
-	TH1::SetDefaultSumw2(true); //turn on histo errors
+  //   myHistos = Histos::instance();
+  //   myHistos->book("h10",140,-3.5,3.5,100,-0.5,99.5);
+  //   myHistos->book("h20",150,0,150.,100,-0.5,99.5);
+  //   myHistos->book("h100",140,-3.5,3.5,100,0,0.1);
+  //   myHistos->book("h110",140,-3.5,3.5,100,0,10.);
+  //   myHistos->book("h120",200,-5.,5.,100,0,0.5);
   
-	//ECAL histos
-    dbe->setCurrentFolder("EMShower");
-     // please keep the binning with fixed width and coherent between ShapeRhoZ and Tr/Lo shapes. Also check if you 
-     // change the binning that the weight changes in the filling in EMShower.cc
-    dbe->book1D("TransverseShape","Transverse Shape; #rho / Moliere radius; 1/E dE/d#rho",70, 0., 7.);
-    dbe->book1D("LongitudinalShape","Longitudinal Shape; z / X0; 1/E dE/dz",40, 0.01, 40.01);
-    dbe->book1D("LongitudinalShapeLayers","Longitudinal Shape in number of layers; z / Layers; 1/E dE/dz", 26, 0.01, 26.01);
-    dbe->book2D("ShapeRhoZ","2D Shape; #rho / Moliere radius; z / X0", 70, 0., 7., 26, 0.01, 26.01);
-    dbe->book1D("NumberOfParticles","Number Of Particles entering the Shower; #Particles; #Events", 6, -0.5, 5.5);
-    dbe->book1D("ParticlesEnergy","Log Particles Energy; log10(E / GeV); #Particles", 30, 0, 3);
-	
-	//HCAL histos
-    dbe->setCurrentFolder("HDShower");
-
-    dbe->book1D("TransverseShapeECAL","ECAL Transverse Shape; #rho / #lambda_{int}; 1/E dE/d#rho",70, 0., 7.);
-    dbe->book1D("LongitudinalShapeECAL","ECAL Longitudinal Shape; z / #lambda_{int}; 1/E dE/dz",20, 0., 2.);
-    dbe->book1D("TransverseShapeHCAL","HCAL Transverse Shape; #rho / #lambda_{int}; 1/E dE/d#rho",70, 0., 7.);
-    dbe->book1D("LongitudinalShapeHCAL","HCAL Longitudinal Shape; z / #lambda_{int}; 1/E dE/dz",120, 0., 12.);       
-    dbe->book1D("ParticlesEnergy","Log Particles Energy; log10(E / GeV); #Particles", 30, 0, 3);
-	
-  }
-
-//   myHistos = Histos::instance();
-//   myHistos->book("h10",140,-3.5,3.5,100,-0.5,99.5);
-//   myHistos->book("h20",150,0,150.,100,-0.5,99.5);
-//   myHistos->book("h100",140,-3.5,3.5,100,0,0.1);
-//   myHistos->book("h110",140,-3.5,3.5,100,0,10.);
-//   myHistos->book("h120",200,-5.,5.,100,0,0.5);
-
-//   myHistos->book("h200",300,0,3.,100,0.,35.);
-//   myHistos->book("h210",720,-M_PI,M_PI,100,0,35.);
-//   myHistos->book("h212",720,-M_PI,M_PI,100,0,35.);
-
-//   myHistos->bookByNumber("h30",0,7,300,-3.,3.,100,0.,35.);
-//   myHistos->book("h310",75,-3.,3.,"");
-//   myHistos->book("h400",100,-10.,10.,100,0.,35.);
-//   myHistos->book("h410",720,-M_PI,M_PI);
+  //   myHistos->book("h200",300,0,3.,100,0.,35.);
+  //   myHistos->book("h210",720,-M_PI,M_PI,100,0,35.);
+  //   myHistos->book("h212",720,-M_PI,M_PI,100,0,35.);
+  
+  //   myHistos->bookByNumber("h30",0,7,300,-3.,3.,100,0.,35.);
+  //   myHistos->book("h310",75,-3.,3.,"");
+  //   myHistos->book("h400",100,-10.,10.,100,0.,35.);
+  //   myHistos->book("h410",720,-M_PI,M_PI);
 
   myCalorimeter_ = 
     new CaloGeometryHelper(fastCalo);
@@ -246,6 +214,7 @@ void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 	else if ( myTrack.onVFcal() ) {
           if(useShowerLibrary) {
             theHFShowerLibrary->recoHFShowerLibrary(myTrack);  
+            myHDResponse_->correctHF(myTrack.hcalEntrance().e(),abs(myTrack.type()));
             updateHCAL(theHFShowerLibrary->getHitsMap(),myTrack.id());
           } 
           else reconstructHCAL(myTrack, random);
@@ -402,7 +371,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
 //  if ( maxEnergy < threshold3x3 ) size = 3;
 
 
-  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart, dbe, NULL, NULL, bFixedLength_);
+  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart,  NULL, NULL, bFixedLength_);
 
 
   double maxShower = theShower.getMaximumOfShower();
@@ -727,8 +696,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 			   &myHcalHitMaker,
 			   onECAL,
 			   eGen,
-                           pmip,
-			   dbe);
+                           pmip);
 	status = theShower.compute();
         mip    = theShower.getmip();
       }
@@ -840,6 +808,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
       // Save HCAL hits
       if(myTrack.onVFcal() && useShowerLibrary) {
+        myHDResponse_->correctHF(eGen,abs(myTrack.type()));
         updateHCAL(theHFShowerLibrary->getHitsMap(),myTrack.id());
       } 
       else 
@@ -1106,7 +1075,6 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 
   evtsToDebug_ = fastCalo.getUntrackedParameter<std::vector<unsigned int> >("EvtsToDebug",std::vector<unsigned>());
   debug_ = fastCalo.getUntrackedParameter<bool>("Debug");
-  useDQM_ = fastCalo.getUntrackedParameter<bool>("useDQM");
 
   bFixedLength_ = ECALparameters.getParameter<bool>("bFixedLength");
   //   std::cout << "bFixedLength_ = " << bFixedLength_ << std::endl;
@@ -1223,9 +1191,10 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   timeShiftHF_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHF");
   timeShiftHO_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHO");
 
-  // fastHFShowerLibrary
+  // FastHFShowerLibrary
   edm::ParameterSet m_HS = fastCalo.getParameter<edm::ParameterSet>("HFShowerLibrary");
   useShowerLibrary       = m_HS.getUntrackedParameter<bool>("useShowerLibrary",false);
+  useCorrectionSL        = m_HS.getUntrackedParameter<bool>("useCorrectionSL",false);
 }
 
 void CalorimetryManager::respCorr(double p) {
@@ -1313,6 +1282,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID,float>& hitMap, int
 
 void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int trackID, float corr)
 {
+  std::vector<double> hfcorr = myHDResponse_->getCorrHF();
   std::map<CaloHitID,float>::const_iterator mapitr;
   std::map<CaloHitID,float>::const_iterator endmapitr=hitMap.end();
   HMapping_.reserve(HMapping_.size()+hitMap.size());
@@ -1334,7 +1304,9 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
 		time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
 	  }
 	  else if (hdetid.subdetId()== HcalForward){
-            if(!useShowerLibrary) {
+            if(useShowerLibrary) {
+              if(useCorrectionSL) energy *= hfcorr[hdetid.ietaAbs()-29];
+            } else {
  	      if(hdetid.depth()== 1) energy *= samplingHF_[0];
 	      if(hdetid.depth()== 2) energy *= samplingHF_[1];
             } 
